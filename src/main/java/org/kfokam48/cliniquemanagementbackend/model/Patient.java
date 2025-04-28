@@ -23,6 +23,7 @@ public class Patient extends Utilisateur{
     private Date dateNaissance;
     private String antecedents;
     private String allergies;
+    private Integer numeroDossierMedical;
 
     @OneToMany(mappedBy = "patient")
     private List<RendezVous> rendezvous = new ArrayList<>();

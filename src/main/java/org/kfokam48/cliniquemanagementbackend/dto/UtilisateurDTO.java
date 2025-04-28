@@ -1,0 +1,29 @@
+package org.kfokam48.cliniquemanagementbackend.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.UniqueElements;
+import org.kfokam48.cliniquemanagementbackend.enums.Roles;
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class UtilisateurDTO {
+    @NotNull(message = "Username is required")
+    @NotBlank(message = "Username cannot be blank")
+    private String username;
+    @NotNull(message = "Password is required")
+    @NotBlank(message = "Password cannot be blank")
+    private String password;
+    @NotNull(message = "Email is required")
+    @NotBlank(message = "Email cannot be blank")
+    private String email;
+    private Roles role; // ADMIN, MEDECIN, etc.
+    // + Getters/Setters
+
+
+
+}
