@@ -1,9 +1,11 @@
 package org.kfokam48.cliniquemanagementbackend.controlleur;
 
 
+import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.UtilisateurDTO;
 import org.kfokam48.cliniquemanagementbackend.model.Utilisateur;
-import org.kfokam48.cliniquemanagementbackend.service.UtilisateurService;
+
+import org.kfokam48.cliniquemanagementbackend.service.impl.UtilisateurServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,18 +16,13 @@ import java.util.List;
 @RequestMapping("/api/utilisateurs") // URL de base pour le contrôleur
 public class UtilisateurController {
 
-    private final UtilisateurService utilisateurService;
+    private final UtilisateurServiceImpl utilisateurService;
 
-    public UtilisateurController(UtilisateurService utilisateurService) {
+    public UtilisateurController(UtilisateurServiceImpl utilisateurService) {
         this.utilisateurService = utilisateurService;
     }
 
-    // Endpoint pour créer un utilisateur
-    @PostMapping
-    public ResponseEntity<Utilisateur> createUtilisateur(@RequestBody UtilisateurDTO utilisateurDTO) {
-        Utilisateur utilisateur = utilisateurService.save(utilisateurDTO);
-        return new ResponseEntity<>(utilisateur, HttpStatus.CREATED);
-    }
+
 
     // Endpoint pour récupérer un utilisateur par ID
     @GetMapping("/{id}")
@@ -38,7 +35,7 @@ public class UtilisateurController {
     @PutMapping("/{id}")
     public ResponseEntity<Utilisateur> updateUtilisateur(
             @PathVariable Long id,
-            @RequestBody UtilisateurDTO utilisateurDTO) {
+          @Valid  @RequestBody UtilisateurDTO utilisateurDTO) {
         Utilisateur utilisateur = utilisateurService.update(id, utilisateurDTO);
         return new ResponseEntity<>(utilisateur, HttpStatus.OK);
     }
@@ -50,9 +47,14 @@ public class UtilisateurController {
     }
 
     // Endpoint pour récupérer tous les utilisateurs
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Utilisateur>> getAllUtilisateurs() {
         List<Utilisateur> utilisateurs = utilisateurService.findAll();
+        return new ResponseEntity<>(utilisateurs, HttpStatus.OK);
+    }
+    @PostMapping("/role/add")
+    public ResponseEntity<Utilisateur> addRoleToUser(@RequestParam Utilisateur user, @RequestParam String roleName) {
+        Utilisateur utilisateurs = utilisateurService.addRoleTouser(user, roleName);
         return new ResponseEntity<>(utilisateurs, HttpStatus.OK);
     }
 }

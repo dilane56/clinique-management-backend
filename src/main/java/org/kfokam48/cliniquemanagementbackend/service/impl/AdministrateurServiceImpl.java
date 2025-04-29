@@ -2,6 +2,7 @@ package org.kfokam48.cliniquemanagementbackend.service.impl;
 
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.AdministrateurDTO;
+import org.kfokam48.cliniquemanagementbackend.enums.Roles;
 import org.kfokam48.cliniquemanagementbackend.exception.ResourceAlreadyExistException;
 import org.kfokam48.cliniquemanagementbackend.exception.RessourceNotFoundException;
 import org.kfokam48.cliniquemanagementbackend.mapper.AdministrateurMapper;
@@ -9,7 +10,9 @@ import org.kfokam48.cliniquemanagementbackend.model.Administrateur;
 import org.kfokam48.cliniquemanagementbackend.repository.AdministrateurRepository;
 import org.kfokam48.cliniquemanagementbackend.repository.UtilisateurRepository;
 import org.kfokam48.cliniquemanagementbackend.service.AdministrateurService;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +25,11 @@ public class AdministrateurServiceImpl implements AdministrateurService {
     private final AdministrateurRepository administrateurRepository;
     private final AdministrateurMapper administrateurMapper;
    private final UtilisateurRepository  utilisateurRepository;
+
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+
 
     public AdministrateurServiceImpl(AdministrateurRepository administrateurRepository, AdministrateurMapper administrateurMapper, UtilisateurRepository utilisateurRepository) {
         this.administrateurRepository = administrateurRepository;
@@ -37,7 +45,12 @@ public class AdministrateurServiceImpl implements AdministrateurService {
         if (utilisateurRepository.existsByUsername(administrateurDTO.getUsername())) {
             throw new ResourceAlreadyExistException("Administrateur already exists with this username");
         }
-        return administrateurRepository.save(administrateurMapper.administrateurDtoToAdministrateur(administrateurDTO));
+        Administrateur administrateur = administrateurMapper.administrateurDtoToAdministrateur(administrateurDTO);
+        administrateur.setPassword(passwordEncoder.encode(administrateurDTO.getPassword()));
+        administrateur.setRole(Roles.valueOf("ADMIN"));
+        administrateurRepository.save(administrateur);
+
+        return administrateur;
     }
 
     @Override
@@ -61,7 +74,7 @@ public class AdministrateurServiceImpl implements AdministrateurService {
         }
         administrateur.setEmail(administrateurDTO.getEmail());
         administrateur.setUsername(administrateurDTO.getUsername());
-        administrateur.setPassword(administrateurDTO.getPassword());
+        administrateur.setPassword(passwordEncoder.encode(administrateurDTO.getPassword()));
         administrateurRepository.save(administrateur);
         return administrateur;
     }

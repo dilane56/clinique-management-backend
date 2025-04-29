@@ -3,6 +3,7 @@ package org.kfokam48.cliniquemanagementbackend.service.impl;
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.MedecinDTO;
 import org.kfokam48.cliniquemanagementbackend.dto.UtilisateurDTO;
+import org.kfokam48.cliniquemanagementbackend.enums.Roles;
 import org.kfokam48.cliniquemanagementbackend.exception.ResourceAlreadyExistException;
 import org.kfokam48.cliniquemanagementbackend.exception.RessourceNotFoundException;
 import org.kfokam48.cliniquemanagementbackend.mapper.MedecinMapper;
@@ -13,10 +14,14 @@ import org.kfokam48.cliniquemanagementbackend.repository.MedecinRepository;
 import org.kfokam48.cliniquemanagementbackend.repository.UtilisateurRepository;
 import org.kfokam48.cliniquemanagementbackend.service.MedecinService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -25,6 +30,8 @@ public class MedecinServiceImpl implements MedecinService {
     private  final MedecinRepository medecinRepository;
     private final MedecinMapper medecinMapper;
     private final UtilisateurRepository utilisateurRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
 
     public MedecinServiceImpl(MedecinRepository medecinRepository, MedecinMapper medecinMapper, UtilisateurRepository utilisateurRepository) {
         this.medecinRepository = medecinRepository;
@@ -41,7 +48,11 @@ public class MedecinServiceImpl implements MedecinService {
         if (utilisateurRepository.existsByUsername(medecinDTO.getUsername())) {
             throw new ResourceAlreadyExistException("User already exists with this username");
         }
-        return medecinRepository.save(medecinMapper.medecinDtoToMedecin(medecinDTO));
+        Medecin medecin = medecinMapper.medecinDtoToMedecin(medecinDTO);
+        medecin.setPassword(passwordEncoder.encode(medecinDTO.getPassword()));
+        medecin.setRole(Roles.valueOf("MEDECIN"));
+        medecinRepository.save(medecin);
+        return medecin;
     }
 
     @Override
@@ -54,10 +65,11 @@ public class MedecinServiceImpl implements MedecinService {
     public Medecin update(Long id,@Valid MedecinDTO medecinDTO) {
         Medecin medecin = medecinRepository.findById(id)
                 .orElseThrow(() -> new RessourceNotFoundException("Medecin not found"));
-        if (!utilisateurRepository.existsByEmail(medecinDTO.getEmail())) {
-            if (utilisateurRepository.existsByUsername(medecinDTO.getUsername())) {
+        if (Objects.equals(medecin.getEmail(), medecinDTO.getEmail()) || !utilisateurRepository.existsByEmail(medecinDTO.getEmail())) {
+            if (!Objects.equals(medecin.getUsername(), medecinDTO.getUsername()) && utilisateurRepository.existsByUsername(medecinDTO.getUsername())) {
                 throw new ResourceAlreadyExistException("User already exists with this username");
             }
+
             medecin.setUsername(medecinDTO.getUsername());
             medecin.setEmail(medecinDTO.getEmail());
             medecin.setPassword(medecinDTO.getPassword());
@@ -67,7 +79,15 @@ public class MedecinServiceImpl implements MedecinService {
         } else {
             throw new ResourceAlreadyExistException("User already exists with this email");
         }
+
+
     }
+
+
+
+
+
+
 
     @Override
     public ResponseEntity<String> deleteById(Long id) {
@@ -79,6 +99,9 @@ public class MedecinServiceImpl implements MedecinService {
 
     @Override
     public List<Medecin> findAll() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Utilisateur connecté : " + auth.getName());
+        System.out.println("Rôles : " + auth.getAuthorities());
         return medecinRepository.findAll();
     }
 }

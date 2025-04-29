@@ -1,15 +1,16 @@
 package org.kfokam48.cliniquemanagementbackend.model;
 import jakarta.persistence.*;
-import lombok.Data;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.List;
+import lombok.Data;
+
+import org.kfokam48.cliniquemanagementbackend.enums.Roles;
 
 @Data
+
+
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Utilisateur implements UserDetails {
+public abstract class Utilisateur {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,35 +25,8 @@ public abstract class Utilisateur implements UserDetails {
     private String telephone;
 
     @Column(nullable = false)
-    private String role; // ADMIN, MEDECIN, INFIRMIERE, SECRETAIRE
+    private Roles role; // ADMIN, MEDECIN, INFIRMIERE, SECRETAIRE
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + this.role));
-    }
-
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public Utilisateur() {
     }
 }

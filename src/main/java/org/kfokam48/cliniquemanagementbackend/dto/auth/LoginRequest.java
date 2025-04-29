@@ -1,4 +1,4 @@
-package org.kfokam48.cliniquemanagementbackend.auth.dto;
+package org.kfokam48.cliniquemanagementbackend.dto.auth;
 
 import lombok.Data;
 

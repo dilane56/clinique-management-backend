@@ -6,6 +6,7 @@ import org.kfokam48.cliniquemanagementbackend.dto.PatientDTO;
 import org.kfokam48.cliniquemanagementbackend.model.Patient;
 import org.kfokam48.cliniquemanagementbackend.service.impl.PatientServiceImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,30 +20,35 @@ public class PatientController {
         this.patientService = patientService;
     }
     @PostMapping("/create")
+    @PreAuthorize("hasRole('MEDECIN') or hasRole('ADMIN') or hasRole('SECRETAIRE')") // Accès pour les rôles MEDECIN, ADMIN et SECRETAIRE
     public ResponseEntity<Patient> createPatient(@Valid @RequestBody PatientDTO patientDto) {
         Patient patient = patientService.save(patientDto);
         return ResponseEntity.ok(patient);
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('MEDECIN') or hasRole('ADMIN') or hasRole('SECRETAIRE')") // Accès pour les rôles MEDECIN, ADMIN et SECRETAIRE
     public ResponseEntity<List<Patient>> getAllPatients() {
         List<Patient> patients = patientService.findAll();
         return ResponseEntity.ok(patients);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('MEDECIN') or hasRole('ADMIN') or hasRole('SECRETAIRE')  or hasRole('PATIENT')") // Accès pour les rôles MEDECIN, ADMIN et SECRETAIRE et PATIENT
     public ResponseEntity<Patient> getPatientById(@PathVariable Long id) {
         Patient patient = patientService.findById(id);
         return ResponseEntity.ok(patient);
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('MEDECIN') or hasRole('ADMIN') or hasRole('SECRETAIRE') or hasRole('PATIENT')") // Accès pour les rôles MEDECIN, ADMIN et SECRETAIRE et PATIENT
     public ResponseEntity<Patient> updatePatient(@PathVariable Long id,@Valid @RequestBody PatientDTO patientDto) {
         Patient updatedPatient = patientService.update(id, patientDto);
         return ResponseEntity.ok(updatedPatient);
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('MEDECIN') or hasRole('ADMIN') or hasRole('SECRETAIRE')") // Accès pour les rôles MEDECIN, ADMIN et SECRETAIRE
     public ResponseEntity<String> deletePatient(@PathVariable Long id) {
         ResponseEntity<String> response = patientService.deleteById(id);
         return response;

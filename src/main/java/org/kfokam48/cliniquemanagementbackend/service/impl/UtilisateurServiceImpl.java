@@ -8,6 +8,7 @@ import org.kfokam48.cliniquemanagementbackend.model.Utilisateur;
 import org.kfokam48.cliniquemanagementbackend.repository.UtilisateurRepository;
 import org.kfokam48.cliniquemanagementbackend.service.UtilisateurService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,16 +18,14 @@ import java.util.List;
 public class UtilisateurServiceImpl implements UtilisateurService {
     private final UtilisateurRepository utilisateurRepository;
      private final UtilisateurMapper utilisateurMapper;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UtilisateurServiceImpl(UtilisateurRepository utilisateurRepository, UtilisateurMapper utilisateurMapper) {
         this.utilisateurRepository = utilisateurRepository;
         this.utilisateurMapper = utilisateurMapper;
     }
 
-    @Override
-    public Utilisateur save(@Valid UtilisateurDTO utilisateurDTO) {
-        return null;
-    }
+
 
     @Override
     public Utilisateur findById(Long id) {
@@ -36,7 +35,18 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
     @Override
     public Utilisateur update(Long id,@Valid UtilisateurDTO utilisateurDTO) {
-        return null;
+        Utilisateur utilisateur = utilisateurRepository.findById(id)
+                .orElseThrow(() -> new RessourceNotFoundException("Utilisateur not found with id: " + id));
+        if (!utilisateurRepository.existsByEmail(utilisateurDTO.getEmail())) {
+            if (utilisateurRepository.existsByUsername(utilisateurDTO.getUsername())) {
+                throw new RessourceNotFoundException("Utilisateur already exists with this username");
+            }
+            utilisateur.setEmail(utilisateurDTO.getEmail());
+            utilisateur.setUsername(utilisateurDTO.getUsername());
+            utilisateur.setPassword(passwordEncoder.encode(utilisateurDTO.getPassword()));
+            utilisateurRepository.save(utilisateur);
+        }
+        return utilisateur;
     }
 
     @Override
@@ -66,5 +76,10 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     @Override
     public boolean existsByEmail(String email) {
         return utilisateurRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Utilisateur addRoleTouser(Utilisateur utilisateur, String role) {
+        return null;
     }
 }

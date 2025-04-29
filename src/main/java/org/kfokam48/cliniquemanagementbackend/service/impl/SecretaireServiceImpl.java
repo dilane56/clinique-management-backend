@@ -2,6 +2,7 @@ package org.kfokam48.cliniquemanagementbackend.service.impl;
 
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.SecretaireDTO;
+import org.kfokam48.cliniquemanagementbackend.enums.Roles;
 import org.kfokam48.cliniquemanagementbackend.exception.ResourceAlreadyExistException;
 import org.kfokam48.cliniquemanagementbackend.exception.RessourceNotFoundException;
 import org.kfokam48.cliniquemanagementbackend.mapper.SecretaireMapper;
@@ -10,10 +11,13 @@ import org.kfokam48.cliniquemanagementbackend.repository.SecretaireRepository;
 import org.kfokam48.cliniquemanagementbackend.repository.UtilisateurRepository;
 import org.kfokam48.cliniquemanagementbackend.service.SecretaireService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+
 @Service
 @Transactional
 public class SecretaireServiceImpl implements SecretaireService {
@@ -21,6 +25,7 @@ public class SecretaireServiceImpl implements SecretaireService {
     private final SecretaireRepository secretaireRepository;
     private final SecretaireMapper secretaireMapper;
     private final UtilisateurRepository utilisateurRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public SecretaireServiceImpl(SecretaireRepository secretaireRepository, SecretaireMapper secretaireMapper, UtilisateurRepository utilisateurRepository) {
         this.secretaireRepository = secretaireRepository;
@@ -36,7 +41,11 @@ public class SecretaireServiceImpl implements SecretaireService {
         if (utilisateurRepository.existsByUsername(secretaireDTO.getUsername())) {
             throw new ResourceAlreadyExistException("User already exists with this username");
         }
-        return secretaireRepository.save(secretaireMapper.secretaireDtoToSecretaire(secretaireDTO));
+        Secretaire secretaire = secretaireMapper.secretaireDtoToSecretaire(secretaireDTO);
+        secretaire.setPassword(passwordEncoder.encode(secretaireDTO.getPassword()));
+        secretaire.setRole(Roles.valueOf("SECRETAIRE"));
+        secretaireRepository.save(secretaire);
+        return secretaire;
     }
 
     @Override
@@ -49,18 +58,20 @@ public class SecretaireServiceImpl implements SecretaireService {
     public Secretaire update(Long id,@Valid SecretaireDTO secretaireDTO) {
         Secretaire secretaire = secretaireRepository.findById(id)
                 .orElseThrow(() -> new RessourceNotFoundException("Secretaire not found"));
-        if (!utilisateurRepository.existsByEmail(secretaireDTO.getEmail())) {
-            if (utilisateurRepository.existsByUsername(secretaireDTO.getUsername())) {
-                throw new ResourceAlreadyExistException("User already exists with this username");
-            }
-            secretaire.setUsername(secretaireDTO.getUsername());
-            secretaire.setEmail(secretaireDTO.getEmail());
-            secretaire.setPassword(secretaireDTO.getPassword());
-            secretaireRepository.save(secretaire);
-            return secretaire;
-        } else {
+        if (!Objects.equals(secretaire.getEmail(), secretaireDTO.getEmail()) && utilisateurRepository.existsByEmail(secretaireDTO.getEmail())) {
             throw new ResourceAlreadyExistException("User already exists with this email");
         }
+        if (!Objects.equals(secretaire.getUsername(), secretaireDTO.getUsername()) && utilisateurRepository.existsByUsername(secretaireDTO.getUsername())) {
+            throw new ResourceAlreadyExistException("User already exists with this username");
+        }
+        secretaire.setUsername(secretaireDTO.getUsername());
+        secretaire.setEmail(secretaireDTO.getEmail());
+        secretaire.setPassword(secretaireDTO.getPassword());
+        secretaireRepository.save(secretaire);
+        return secretaire;
+
+
+
     }
 
     @Override
