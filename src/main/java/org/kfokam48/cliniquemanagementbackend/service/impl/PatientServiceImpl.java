@@ -2,6 +2,7 @@ package org.kfokam48.cliniquemanagementbackend.service.impl;
 
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.PatientDTO;
+import org.kfokam48.cliniquemanagementbackend.dto.PatientResponseDTO;
 import org.kfokam48.cliniquemanagementbackend.enums.Roles;
 import org.kfokam48.cliniquemanagementbackend.exception.ResourceAlreadyExistException;
 import org.kfokam48.cliniquemanagementbackend.exception.RessourceNotFoundException;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -47,24 +49,25 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public Patient findById(Long id) {
-        return patientRepository.findById(id)
-                .orElseThrow(() -> new RessourceNotFoundException("Patient not found"));
+    public PatientResponseDTO findById(Long id) {
+        return   patientMapper.patientToPatientResponseDTO(patientRepository.findById(id)
+                .orElseThrow(() -> new RessourceNotFoundException("Patient not found")));
     }
 
     @Override
     public Patient update(Long id,@Valid PatientDTO patientDTO) {
         Patient patient = patientRepository.findById(id)
                 .orElseThrow(() -> new RessourceNotFoundException("Patient not found"));
-       if(patient.getEmail() != patientDTO.getEmail() && utilisateurRepository.existsByEmail(patientDTO.getEmail())){
+       if(!Objects.equals(patient.getEmail(), patientDTO.getEmail()) && utilisateurRepository.existsByEmail(patientDTO.getEmail())){
             throw new ResourceAlreadyExistException("User already exists with this email");
         }
-        if(patient.getUsername() != patientDTO.getUsername() && utilisateurRepository.existsByUsername(patientDTO.getUsername())){
+        if(!Objects.equals(patient.getUsername(), patientDTO.getUsername()) && utilisateurRepository.existsByUsername(patientDTO.getUsername())){
             throw new ResourceAlreadyExistException("User already exists with this username");
         }
         patient.setUsername(patientDTO.getUsername());
         patient.setEmail(patientDTO.getEmail());
         patient.setPassword(patientDTO.getPassword());
+        patient.setNumeroDossierMedical(patientDTO.getNumeroDossierMedical());
         return patientRepository.save(patient);
     }
 
@@ -78,7 +81,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public List<Patient> findAll() {
-        return patientRepository.findAll();
+    public List<PatientResponseDTO> findAll() {
+        return patientMapper.patientListToPatientResponseDtoList(patientRepository.findAll());
     }
 }

@@ -3,6 +3,7 @@ package org.kfokam48.cliniquemanagementbackend.controlleur;
 
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.PatientDTO;
+import org.kfokam48.cliniquemanagementbackend.dto.PatientResponseDTO;
 import org.kfokam48.cliniquemanagementbackend.model.Patient;
 import org.kfokam48.cliniquemanagementbackend.service.impl.PatientServiceImpl;
 import org.springframework.http.ResponseEntity;
@@ -28,15 +29,15 @@ public class PatientController {
 
     @GetMapping("/all")
     @PreAuthorize("hasRole('MEDECIN') or hasRole('ADMIN') or hasRole('SECRETAIRE')") // Accès pour les rôles MEDECIN, ADMIN et SECRETAIRE
-    public ResponseEntity<List<Patient>> getAllPatients() {
-        List<Patient> patients = patientService.findAll();
+    public ResponseEntity<List<PatientResponseDTO>> getAllPatients() {
+        List<PatientResponseDTO> patients = patientService.findAll();
         return ResponseEntity.ok(patients);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('MEDECIN') or hasRole('ADMIN') or hasRole('SECRETAIRE')  or hasRole('PATIENT')") // Accès pour les rôles MEDECIN, ADMIN et SECRETAIRE et PATIENT
-    public ResponseEntity<Patient> getPatientById(@PathVariable Long id) {
-        Patient patient = patientService.findById(id);
+    public ResponseEntity<PatientResponseDTO> getPatientById(@PathVariable Long id) {
+        PatientResponseDTO patient = patientService.findById(id);
         return ResponseEntity.ok(patient);
     }
 

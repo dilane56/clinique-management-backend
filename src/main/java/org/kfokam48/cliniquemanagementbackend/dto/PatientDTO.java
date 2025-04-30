@@ -2,12 +2,13 @@ package org.kfokam48.cliniquemanagementbackend.dto;
 
 import lombok.Data;
 
-import java.time.LocalDate;
+
+import java.util.Date;
 
 @Data
 public class PatientDTO extends UtilisateurDTO {
 
-   private LocalDate dateNaissance;
+   private Date dateNaissance;
    private Integer numeroDossierMedical;
 
     // Getters et Setters

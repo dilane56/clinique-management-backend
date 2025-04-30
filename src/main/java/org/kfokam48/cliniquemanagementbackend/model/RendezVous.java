@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,14 +17,13 @@ public class RendezVous {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDate dateRendezVous;
-
+    private LocalDateTime dateRendezVous;
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;
-
     @ManyToOne
     @JoinColumn(name = "medecin_id")
     private Medecin medecin;
     private String motif;
+
 }

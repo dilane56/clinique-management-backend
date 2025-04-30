@@ -2,6 +2,7 @@ package org.kfokam48.cliniquemanagementbackend.service.impl;
 
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.MedecinDTO;
+import org.kfokam48.cliniquemanagementbackend.dto.MedecinResponseDTO;
 import org.kfokam48.cliniquemanagementbackend.dto.UtilisateurDTO;
 import org.kfokam48.cliniquemanagementbackend.enums.Roles;
 import org.kfokam48.cliniquemanagementbackend.exception.ResourceAlreadyExistException;
@@ -56,13 +57,13 @@ public class MedecinServiceImpl implements MedecinService {
     }
 
     @Override
-    public Medecin findById(Long id) {
-        return medecinRepository.findById(id)
-                .orElseThrow(() -> new RessourceNotFoundException("Medecin not found with id: " + id));
+    public MedecinResponseDTO findById(Long id) {
+        return medecinMapper.medecinToMedecinResponseDto(medecinRepository.findById(id)
+                .orElseThrow(() -> new RessourceNotFoundException("Medecin not found with id: " + id)))  ;
     }
 
     @Override
-    public Medecin update(Long id,@Valid MedecinDTO medecinDTO) {
+    public MedecinResponseDTO update(Long id,@Valid MedecinDTO medecinDTO) {
         Medecin medecin = medecinRepository.findById(id)
                 .orElseThrow(() -> new RessourceNotFoundException("Medecin not found"));
         if (Objects.equals(medecin.getEmail(), medecinDTO.getEmail()) || !utilisateurRepository.existsByEmail(medecinDTO.getEmail())) {
@@ -75,7 +76,7 @@ public class MedecinServiceImpl implements MedecinService {
             medecin.setPassword(medecinDTO.getPassword());
             medecin.setSpecialite(medecinDTO.getSpecialite());
             medecinRepository.save(medecin);
-            return medecin;
+            return medecinMapper.medecinToMedecinResponseDto(medecin);
         } else {
             throw new ResourceAlreadyExistException("User already exists with this email");
         }
@@ -98,10 +99,8 @@ public class MedecinServiceImpl implements MedecinService {
     }
 
     @Override
-    public List<Medecin> findAll() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("Utilisateur connecté : " + auth.getName());
-        System.out.println("Rôles : " + auth.getAuthorities());
-        return medecinRepository.findAll();
+    public List<MedecinResponseDTO> findAll() {
+
+        return   medecinMapper.medecinListToMedecinResponseDtoList(medecinRepository.findAll());
     }
 }

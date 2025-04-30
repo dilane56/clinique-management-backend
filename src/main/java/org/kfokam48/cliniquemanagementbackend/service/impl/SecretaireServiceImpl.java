@@ -58,18 +58,18 @@ public class SecretaireServiceImpl implements SecretaireService {
     public Secretaire update(Long id,@Valid SecretaireDTO secretaireDTO) {
         Secretaire secretaire = secretaireRepository.findById(id)
                 .orElseThrow(() -> new RessourceNotFoundException("Secretaire not found"));
-        if (!Objects.equals(secretaire.getEmail(), secretaireDTO.getEmail()) && utilisateurRepository.existsByEmail(secretaireDTO.getEmail())) {
+        if (Objects.equals(secretaire.getEmail(), secretaireDTO.getEmail()) || !utilisateurRepository.existsByEmail(secretaireDTO.getEmail())) {
+            if (!Objects.equals(secretaire.getUsername(), secretaireDTO.getUsername()) && utilisateurRepository.existsByUsername(secretaireDTO.getUsername())) {
+                throw new ResourceAlreadyExistException("User already exists with this username");
+            }
+            secretaire.setUsername(secretaireDTO.getUsername());
+            secretaire.setEmail(secretaireDTO.getEmail());
+            secretaire.setPassword(secretaireDTO.getPassword());
+            secretaireRepository.save(secretaire);
+            return secretaire;
+        } else {
             throw new ResourceAlreadyExistException("User already exists with this email");
         }
-        if (!Objects.equals(secretaire.getUsername(), secretaireDTO.getUsername()) && utilisateurRepository.existsByUsername(secretaireDTO.getUsername())) {
-            throw new ResourceAlreadyExistException("User already exists with this username");
-        }
-        secretaire.setUsername(secretaireDTO.getUsername());
-        secretaire.setEmail(secretaireDTO.getEmail());
-        secretaire.setPassword(secretaireDTO.getPassword());
-        secretaireRepository.save(secretaire);
-        return secretaire;
-
 
 
     }

@@ -3,6 +3,7 @@ package org.kfokam48.cliniquemanagementbackend.service.impl;
 
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.RendezVousDTO;
+import org.kfokam48.cliniquemanagementbackend.dto.RendezVousResponseDTO;
 import org.kfokam48.cliniquemanagementbackend.exception.RessourceNotFoundException;
 import org.kfokam48.cliniquemanagementbackend.mapper.RendezVousMapper;
 import org.kfokam48.cliniquemanagementbackend.model.RendezVous;
@@ -21,8 +22,8 @@ import java.util.List;
 public class RendezVousServiceImpl implements RendezVousService {
     private final RendezVousRepository rendezVousRepository;
     private final RendezVousMapper rendezVousMapper;
-    private PatientRepository patientRepository;
-    private MedecinRepository medecinRepository;
+    private final PatientRepository patientRepository;
+    private final MedecinRepository medecinRepository;
 
     public RendezVousServiceImpl(RendezVousRepository rendezVousRepository, RendezVousMapper rendezVousMapper, PatientRepository patientRepository, MedecinRepository medecinRepository) {
         this.rendezVousRepository = rendezVousRepository;
@@ -32,36 +33,46 @@ public class RendezVousServiceImpl implements RendezVousService {
     }
 
     @Override
-    public RendezVous save(@Valid RendezVousDTO rendezVousDTO) {
-        return rendezVousRepository.save(rendezVousMapper.rendezVousDtoToRendezvous(rendezVousDTO));
+    public RendezVousResponseDTO save(@Valid RendezVousDTO rendezVousDTO) {
+        if(patientRepository.findByUsername(rendezVousDTO.getPatientUsername())
+                .isEmpty()){
+            throw new RessourceNotFoundException("Patient not found");
+        }
+        if(medecinRepository.findByUsername(rendezVousDTO.getMedecinUsername()).isEmpty()){
+            throw new RessourceNotFoundException("Medecin not found");
+        }
+        RendezVousResponseDTO rendezVousResponseDTO = rendezVousMapper.rendezVousDtoToRendezVousResponseDto(rendezVousDTO);
+        rendezVousResponseDTO.setId( rendezVousRepository.save(rendezVousMapper.rendezVousDtoToRendezvous(rendezVousDTO)).getId());
+        return rendezVousResponseDTO;
     }
 
     @Override
-    public RendezVous findById(Long Id) {
-        return rendezVousRepository.findById(Id)
-                .orElseThrow(() -> new RessourceNotFoundException("Rendez-vous not found"));
+    public RendezVousResponseDTO findById(Long Id) {
+        return rendezVousMapper.rendezVousToRendezVousResponseDTo(
+                rendezVousRepository.findById(Id)
+                        .orElseThrow(() -> new RessourceNotFoundException("Rendez-vous not found"))
+        );
     }
 
     @Override
-    public RendezVous update(Long id,@Valid RendezVousDTO rendezVousDTO) {
+    public RendezVousResponseDTO update(Long id,@Valid RendezVousDTO rendezVousDTO) {
         RendezVous rendezVous = rendezVousRepository.findById(id)
                 .orElseThrow(() -> new RessourceNotFoundException("Rendez-vous not found"));
         rendezVous.setDateRendezVous(rendezVousDTO.getDateRendezVous());
         rendezVous.setMotif(rendezVousDTO.getMotif());
 
-        rendezVous.setPatient(patientRepository.findById(rendezVousDTO.getPatientId())
+        rendezVous.setPatient(patientRepository.findByUsername(rendezVousDTO.getPatientUsername())
                 .orElseThrow(() -> new RessourceNotFoundException("Patient not found")));
-        rendezVous.setMedecin(medecinRepository.findById(rendezVousDTO.getMedecinId())
+        rendezVous.setMedecin(medecinRepository.findByUsername(rendezVousDTO.getMedecinUsername())
                 .orElseThrow(() -> new RessourceNotFoundException("Medecin not found")));
-        rendezVousRepository.save(rendezVous);
-
-
-        return rendezVous;
+        RendezVousResponseDTO rendezVousResponseDTO = rendezVousMapper.rendezVousDtoToRendezVousResponseDto(rendezVousDTO);
+        rendezVousResponseDTO.setId( rendezVousRepository.save(rendezVousMapper.rendezVousDtoToRendezvous(rendezVousDTO)).getId());
+        return rendezVousResponseDTO;
     }
 
     @Override
-    public List<RendezVous> findAll() {
-        return rendezVousRepository.findAll();
+    public List<RendezVousResponseDTO> findAll() {
+        return rendezVousMapper.rendezVousListToRendezVousResponseDtoList(rendezVousRepository.findAll());
     }
 
     @Override

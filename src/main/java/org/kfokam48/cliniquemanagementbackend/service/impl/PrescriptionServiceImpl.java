@@ -3,6 +3,7 @@ package org.kfokam48.cliniquemanagementbackend.service.impl;
 
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.PrescriptionDTO;
+import org.kfokam48.cliniquemanagementbackend.dto.PrescriptionResponseDTO;
 import org.kfokam48.cliniquemanagementbackend.exception.RessourceNotFoundException;
 import org.kfokam48.cliniquemanagementbackend.mapper.PrescriptionMapper;
 import org.kfokam48.cliniquemanagementbackend.model.Patient;
@@ -14,6 +15,7 @@ import org.kfokam48.cliniquemanagementbackend.service.PrescriptionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 @Service
@@ -32,35 +34,35 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
-    public Prescription save(@Valid PrescriptionDTO prescriptionDTO) {
-        return prescriptionRepository.save(prescriptionMapper.prescriptionDtoToPrescription(prescriptionDTO));
+    public PrescriptionResponseDTO save(@Valid PrescriptionDTO prescriptionDTO) {
+       // Prescription prescription = prescriptionMapper.prescriptionDtoToPrescription(prescriptionDTO);
+        return prescriptionMapper.prescriptionToPrescriptionResponseDto(prescriptionRepository.save(prescriptionMapper.prescriptionDtoToPrescription(prescriptionDTO)));
     }
 
     @Override
-    public Prescription findById(Long id) {
-        return prescriptionRepository.findById(id)
-                .orElseThrow(() -> new RessourceNotFoundException("Prescription not found"));
+    public PrescriptionResponseDTO findById(Long id) {
+        return prescriptionMapper.prescriptionToPrescriptionResponseDto(prescriptionRepository.findById(id)
+                .orElseThrow(() -> new RessourceNotFoundException("Prescription not found")));
     }
 
     @Override
-    public Prescription update(Long id,@Valid PrescriptionDTO prescriptionDTO) {
+    public PrescriptionResponseDTO update(Long id,@Valid PrescriptionDTO prescriptionDTO) {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new RessourceNotFoundException("Prescription not found"));
-        prescription.setDate(prescriptionDTO.getDatePrescription());
         prescription.setMedicaments(prescriptionDTO.getMedicament());
-        Patient patient = patientRepository.findById(prescriptionDTO.getPatientId())
+        Patient patient = patientRepository.findByUsername(prescriptionDTO.getPatientUsername())
                 .orElseThrow(() -> new RessourceNotFoundException("Patient not found"));
         prescription.setPatient(patient);
-        prescription.setMedecin(medecinRepository.findById(prescriptionDTO.getMedecinId())
+        prescription.setMedecin(medecinRepository.findByUsername(prescriptionDTO.getMedecinUsername())
                 .orElseThrow(() -> new RessourceNotFoundException("Medecin not found")));
         prescriptionRepository.save(prescription);
 
-        return prescription;
+        return prescriptionMapper.prescriptionToPrescriptionResponseDto(prescription);
     }
 
     @Override
-    public List<Prescription> findAll() {
-        return prescriptionRepository.findAll();
+    public List<PrescriptionResponseDTO> findAll() {
+        return prescriptionMapper.prescriptionListToPrescriptionResponseDtoList(prescriptionRepository.findAll());
     }
 
     @Override

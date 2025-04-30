@@ -3,6 +3,7 @@ package org.kfokam48.cliniquemanagementbackend.controlleur;
 
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.RendezVousDTO;
+import org.kfokam48.cliniquemanagementbackend.dto.RendezVousResponseDTO;
 import org.kfokam48.cliniquemanagementbackend.model.RendezVous;
 import org.kfokam48.cliniquemanagementbackend.service.impl.RendezVousServiceImpl;
 import org.springframework.http.ResponseEntity;
@@ -19,26 +20,26 @@ public class RendezVousController {
         this.rendezVousService = rendezVousService;
     }
     @PostMapping("/create")
-    public ResponseEntity<RendezVous> createRendezVous(@Valid @RequestBody RendezVousDTO rendezVousDTO) {
-        RendezVous rendezVous = rendezVousService.save(rendezVousDTO);
+    public ResponseEntity<RendezVousResponseDTO> createRendezVous(@Valid @RequestBody RendezVousDTO rendezVousDTO) {
+        RendezVousResponseDTO rendezVous = rendezVousService.save(rendezVousDTO);
         return ResponseEntity.ok(rendezVous);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<RendezVous>> getAllRendezVous() {
-        List<RendezVous> rendezVousList = rendezVousService.findAll();
+    public ResponseEntity<List<RendezVousResponseDTO>> getAllRendezVous() {
+        List<RendezVousResponseDTO> rendezVousList = rendezVousService.findAll();
         return ResponseEntity.ok(rendezVousList);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RendezVous> getRendezVousById(@PathVariable Long id) {
-        RendezVous rendezVous = rendezVousService.findById(id);
+    public ResponseEntity<RendezVousResponseDTO> getRendezVousById(@PathVariable Long id) {
+        RendezVousResponseDTO rendezVous = rendezVousService.findById(id);
         return ResponseEntity.ok(rendezVous);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<RendezVous> updateRendezVous(@PathVariable Long id,@Valid @RequestBody RendezVousDTO rendezVousDTO) {
-        RendezVous updatedRendezVous = rendezVousService.update(id, rendezVousDTO);
+    public ResponseEntity<RendezVousResponseDTO> updateRendezVous(@PathVariable Long id, @Valid @RequestBody RendezVousDTO rendezVousDTO) {
+        RendezVousResponseDTO updatedRendezVous = rendezVousService.update(id, rendezVousDTO);
         return ResponseEntity.ok(updatedRendezVous);
     }
 
