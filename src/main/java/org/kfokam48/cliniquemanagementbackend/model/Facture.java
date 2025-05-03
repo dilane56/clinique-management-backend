@@ -1,5 +1,6 @@
 package org.kfokam48.cliniquemanagementbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class Facture {
     private StatutPayement statutPayement;
     private ModePayement modePayement;
     private String description;
+
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;

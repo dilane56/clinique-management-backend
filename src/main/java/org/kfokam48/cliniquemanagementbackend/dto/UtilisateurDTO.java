@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.kfokam48.cliniquemanagementbackend.enums.Roles;
+import org.kfokam48.cliniquemanagementbackend.enums.Sexe;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,8 +21,9 @@ public class UtilisateurDTO {
     @NotNull(message = "Email is required")
     @NotBlank(message = "Email cannot be blank")
     private String email;
-    private Roles role; // ADMIN, MEDECIN, etc.
-    // + Getters/Setters
+    @NotNull(message = "le sexe est requis")
+    private Sexe sexe;
+
 
 
 

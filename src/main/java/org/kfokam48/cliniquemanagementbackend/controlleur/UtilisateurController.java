@@ -32,13 +32,13 @@ public class UtilisateurController {
     }
 
     // Endpoint pour mettre à jour un utilisateur
-    @PutMapping("/{id}")
-    public ResponseEntity<Utilisateur> updateUtilisateur(
-            @PathVariable Long id,
-          @Valid  @RequestBody UtilisateurDTO utilisateurDTO) {
-        Utilisateur utilisateur = utilisateurService.update(id, utilisateurDTO);
-        return new ResponseEntity<>(utilisateur, HttpStatus.OK);
-    }
+//    @PutMapping("/{id}")
+//    public ResponseEntity<Utilisateur> updateUtilisateur(
+//            @PathVariable Long id,
+//          @Valid  @RequestBody UtilisateurDTO utilisateurDTO) {
+//        Utilisateur utilisateur = utilisateurService.update(id, utilisateurDTO);
+//        return new ResponseEntity<>(utilisateur, HttpStatus.OK);
+//    }
 
     // Endpoint pour supprimer un utilisateur par ID
     @DeleteMapping("/{id}")
@@ -52,9 +52,9 @@ public class UtilisateurController {
         List<Utilisateur> utilisateurs = utilisateurService.findAll();
         return new ResponseEntity<>(utilisateurs, HttpStatus.OK);
     }
-    @PostMapping("/role/add")
-    public ResponseEntity<Utilisateur> addRoleToUser(@RequestParam Utilisateur user, @RequestParam String roleName) {
-        Utilisateur utilisateurs = utilisateurService.addRoleTouser(user, roleName);
-        return new ResponseEntity<>(utilisateurs, HttpStatus.OK);
-    }
+//    @PostMapping("/role/add")
+//    public ResponseEntity<Utilisateur> addRoleToUser(@RequestParam Utilisateur user, @RequestParam String roleName) {
+//        Utilisateur utilisateurs = utilisateurService.addRoleTouser(user, roleName);
+//        return new ResponseEntity<>(utilisateurs, HttpStatus.OK);
+//    }
 }

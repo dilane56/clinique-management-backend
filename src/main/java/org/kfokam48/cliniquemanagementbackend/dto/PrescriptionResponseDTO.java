@@ -11,6 +11,7 @@ public class PrescriptionResponseDTO {
     private String patientUsername;
     private String medecinUsername;
     private String instructions;
+    private LocalDate datePrescription;
 
     // Getters et Setters
 }

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.time.LocalDate;
 import java.util.List;
 @Service
 @Transactional
@@ -35,8 +36,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     public PrescriptionResponseDTO save(@Valid PrescriptionDTO prescriptionDTO) {
-       // Prescription prescription = prescriptionMapper.prescriptionDtoToPrescription(prescriptionDTO);
-        return prescriptionMapper.prescriptionToPrescriptionResponseDto(prescriptionRepository.save(prescriptionMapper.prescriptionDtoToPrescription(prescriptionDTO)));
+        Prescription prescription = prescriptionMapper.prescriptionDtoToPrescription(prescriptionDTO);
+        prescription.setDatePrescription(LocalDate.now());
+        prescriptionRepository.save(prescription);
+        return prescriptionMapper.prescriptionToPrescriptionResponseDto(prescription);
     }
 
     @Override
@@ -55,6 +58,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         prescription.setPatient(patient);
         prescription.setMedecin(medecinRepository.findByUsername(prescriptionDTO.getMedecinUsername())
                 .orElseThrow(() -> new RessourceNotFoundException("Medecin not found")));
+        prescription.setDatePrescription(LocalDate.now());
         prescriptionRepository.save(prescription);
 
         return prescriptionMapper.prescriptionToPrescriptionResponseDto(prescription);

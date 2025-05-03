@@ -37,6 +37,7 @@ public class PatientMapper {
         patientResponseDTO.setRole(patient.getRole());
         patientResponseDTO.setPassword(patient.getPassword());
         patientResponseDTO.setRendezvous(rendezVousMapper.rendezVousListToRendezVousInUserDtoList(patient.getRendezvous()));
+        patientResponseDTO.setSexe(patient.getSexe());
         return patientResponseDTO;
     }
     public List<PatientResponseDTO> patientListToPatientResponseDtoList(List<Patient> patientList){

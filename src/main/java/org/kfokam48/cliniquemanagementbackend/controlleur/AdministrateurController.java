@@ -6,6 +6,7 @@ import org.kfokam48.cliniquemanagementbackend.dto.AdministrateurDTO;
 import org.kfokam48.cliniquemanagementbackend.model.Administrateur;
 import org.kfokam48.cliniquemanagementbackend.service.impl.AdministrateurServiceImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,18 +22,21 @@ public class AdministrateurController {
 
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')") // Accès pour les rôles ADMIN
     public ResponseEntity<Administrateur> createAdministrateur(@Valid @RequestBody AdministrateurDTO administrateurDTO) {
         Administrateur administrateur = administrateurService.save(administrateurDTO);
         return ResponseEntity.ok(administrateur);
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')") // Accès pour les rôles ADMIN
     public ResponseEntity<List<Administrateur>> getAllAdministrateurs() {
         List<Administrateur> administrateurs = administrateurService.findAll();
         return ResponseEntity.ok(administrateurs);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')") // Accès pour les rôles  ADMIN
     public ResponseEntity<Administrateur> getAdministrateurById(@PathVariable Long id) {
         Administrateur administrateur = administrateurService.findById(id);
         return ResponseEntity.ok(administrateur);

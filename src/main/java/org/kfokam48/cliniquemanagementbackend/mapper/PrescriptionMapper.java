@@ -44,6 +44,7 @@ public class PrescriptionMapper {
         prescriptionResponseDTO.setPatientUsername(prescription.getPatient().getUsername());
         prescriptionResponseDTO.setMedecinUsername(prescription.getMedecin().getUsername());
         prescriptionResponseDTO.setInstructions(prescription.getInstructions());
+        prescriptionResponseDTO.setDatePrescription(prescription.getDatePrescription());
         return prescriptionResponseDTO;
     }
 
