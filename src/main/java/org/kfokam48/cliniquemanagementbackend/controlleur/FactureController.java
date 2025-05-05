@@ -4,6 +4,7 @@ import com.itextpdf.text.DocumentException;
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.FactureDTO;
 import org.kfokam48.cliniquemanagementbackend.dto.FactureResponseDto;
+import org.kfokam48.cliniquemanagementbackend.dto.FactureUpdateDTO;
 import org.kfokam48.cliniquemanagementbackend.exception.RessourceNotFoundException;
 import org.kfokam48.cliniquemanagementbackend.model.Facture;
 import org.kfokam48.cliniquemanagementbackend.repository.FactureRepository;
@@ -48,7 +49,7 @@ public class FactureController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<FactureResponseDto> updateFacture(@PathVariable Long id,@Valid @RequestBody FactureDTO factureDTO) {
+    public ResponseEntity<FactureResponseDto> updateFacture(@PathVariable Long id,@Valid @RequestBody FactureUpdateDTO factureDTO) {
         FactureResponseDto updatedFacture = factureService.update(id, factureDTO);
         return ResponseEntity.ok(updatedFacture);
     }

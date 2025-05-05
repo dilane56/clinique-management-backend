@@ -29,17 +29,70 @@ public class PdfService {
         PdfWriter pdfWriter = PdfWriter.getInstance(document, outputStream);
         document.open();
         // Titre du document
-        document.add(new Paragraph("Facture Médicale"));
+        Paragraph title = new Paragraph("Facture Médicale");
+        title.setAlignment(Element.ALIGN_CENTER);
+        title.setFont(FontFactory.getFont(FontFactory.HELVETICA_BOLD, 35, BaseColor.BLUE));
+        title.setSpacingAfter(10);
+      //  title.setSpacingBefore(10);
+        document.add(title);
+        document.add(new Paragraph("========================================================================"));
+
         // Contenu de la facture
-        document.add(new Paragraph("Facture"));
-        document.add(new Paragraph("ID: " + facture.getId()));
-        document.add(new Paragraph("Patient: " + facture.getPatient().getUsername() + " " + facture.getPatient().getPrenom()));
-        document.add(new Paragraph("Montant: " + facture.getMontantTotal() + " €"));
-        document.add(new Paragraph("Date Impression: " + facture.getDateEmission()));
-        document.add(new Paragraph("Mode de paiement: " + (facture.getModePayement() != null ? facture.getModePayement().toString() : "Non spécifié")));
-        document.add(new Paragraph("Statut de paiement: " + (facture.getStatutPayement() != null ? facture.getStatutPayement().toString() : "Non spécifié")));
-        document.add(new Paragraph("Date Payement: " + facture.getDatePayement()));
-        document.add(new Paragraph("Motif: " + facture.getDescription()));
+        PdfPTable factureTable = new PdfPTable(2);
+        float[] columnWidths = {250, 150F, 150F};
+        factureTable.addCell(new PdfPCell(new Phrase("Numéro de Facture: "))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase(String.valueOf(facture.getId())))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase("Date d'émission: "))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase(facture.getDateEmission().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase("Patient: ")));
+        factureTable.addCell(new PdfPCell(new Phrase(facture.getRendezVous().getPatient().getUsername() + " " + facture.getRendezVous().getPatient().getPrenom()))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase("Médecin: ")));
+        factureTable.addCell(new PdfPCell(new Phrase(facture.getRendezVous().getMedecin().getUsername() + " " + facture.getRendezVous().getMedecin().getPrenom()))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase("Montant Total: ")));
+        factureTable.addCell(new PdfPCell(new Phrase(String.valueOf(facture.getMontantTotal()) + " €"))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase("Montant Versé: ")));
+        factureTable.addCell(new PdfPCell(new Phrase(String.valueOf(facture.getMontantPayement()) + " €"))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase("Montant Restant: ")));
+        factureTable.addCell(new PdfPCell(new Phrase(String.valueOf(facture.getMontantRestant()) + " €"))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase("Mode de Paiement: ")));
+        factureTable.addCell(new PdfPCell(new Phrase(facture.getModePayement() != null ? facture.getModePayement().toString() : "Non spécifié"))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase("Statut de Paiement: ")));
+        factureTable.addCell(new PdfPCell(new Phrase(facture.getStatutPayement() != null ? facture.getStatutPayement().toString() : "Non spécifié"))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase("Date de Paiement: ")));
+        factureTable.addCell(new PdfPCell(new Phrase(facture.getDatePayement() != null ? facture.getDatePayement().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "Non spécifié"))).setMinimumHeight(30);
+        factureTable.addCell(new PdfPCell(new Phrase("Description: ")));
+        factureTable.addCell(new PdfPCell(new Phrase(facture.getDescription() != null ? facture.getDescription() : "Non spécifié"))).setMinimumHeight(30);
+        factureTable.setSpacingAfter(40);
+        factureTable.setSpacingBefore(30);
+
+        factureTable.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+        document.add(factureTable);
+        // Ajouter une ligne de séparation
+        Paragraph signature = new Paragraph("Signature du Médecin: ____________________________");
+        signature.setSpacingAfter(30);
+       // signature.setSpacingBefore(30);
+        signature.setAlignment(Element.ALIGN_RIGHT);
+        document.add(signature);
+
+        Paragraph signaturePatient = new Paragraph("Signature du Patient: ____________________________");
+       // signaturePatient.setSpacingAfter(10);
+        signaturePatient.setSpacingBefore(30);
+        signaturePatient.setAlignment(Element.ALIGN_LEFT);
+        document.add(signaturePatient);
+        // Ajouter un message de remerciement
+        Paragraph remerciement = new Paragraph();
+        Paragraph line = new Paragraph("========================================================================");
+        Paragraph line2 = new Paragraph("Merci de votre confiance !");
+        Paragraph line3 = new Paragraph("Pour toute question, veuillez nous contacter à l'adresse suivante : +237 696784489");
+        remerciement.add(line);
+        remerciement.add(line2);
+        remerciement.add(line3);
+        remerciement.setAlignment(Element.ALIGN_BOTTOM);
+        remerciement.setAlignment(Element.ALIGN_CENTER);
+        remerciement.setSpacingBefore(60);
+        document.add(remerciement);
+
 
         document.close();
         return outputStream;
@@ -56,18 +109,18 @@ public class PdfService {
         document.open();
 
         // ✅ Ajout de l'en-tête de la clinique
-        document.add(new Paragraph("######################################################################"));
-        Paragraph entete = new Paragraph("CLINIC NAME");
-        entete.setAlignment(Element.ALIGN_CENTER);
-        entete.setFont(FontFactory.getFont(FontFactory.HELVETICA_BOLD, 30));
-        document.add(entete);
-        document.add(new Paragraph("Yaoundé , EMANA, CAMEROUN"));
-        document.add(new Paragraph("youremail@companyname.com / yourwebsite.com"));
-        document.add(new Paragraph("#######################################################################"));
+//        document.add(new Paragraph("######################################################################"));
+//        Paragraph entete = new Paragraph("CLINIC NAME");
+//        entete.setAlignment(Element.ALIGN_CENTER);
+//        entete.setFont(FontFactory.getFont(FontFactory.HELVETICA_BOLD, 30));
+//        document.add(entete);
+//        document.add(new Paragraph("Yaoundé , EMANA, CAMEROUN"));
+//        document.add(new Paragraph("youremail@companyname.com / yourwebsite.com"));
+//        document.add(new Paragraph("#######################################################################"));
         // Titre du document
         Paragraph title = new Paragraph("PRESCRIPTION MEDICALE");
         title.setAlignment(Element.ALIGN_CENTER);
-        title.setFont(FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20));
+        title.setFont(FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20, BaseColor.BLUE));
         title.setSpacingAfter(10);
         title.setSpacingBefore(10);
         document.add(title);

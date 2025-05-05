@@ -1,6 +1,6 @@
 package org.kfokam48.cliniquemanagementbackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 import org.kfokam48.cliniquemanagementbackend.enums.ModePayement;
 import org.kfokam48.cliniquemanagementbackend.enums.StatutPayement;
 
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -20,8 +21,8 @@ public class Facture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private double montantTotal;
-    private LocalDate dateEmission;
-    private Date datePayement;
+    private LocalDateTime dateEmission;
+    private LocalDateTime datePayement;
     private double montantPayement;
     private double montantRestant;
     private StatutPayement statutPayement;
@@ -29,7 +30,11 @@ public class Facture {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "patient_id")
-    private Patient patient;
+    @JoinColumn(name = "rendezvous_id")
+    private RendezVous rendezVous;
+
+    public void calculerMontantRestant() {
+        this.montantRestant = this.montantTotal - this.montantPayement;
+    }
 
 }

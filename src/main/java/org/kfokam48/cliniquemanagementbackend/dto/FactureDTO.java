@@ -9,8 +9,8 @@ import java.time.LocalDate;
 public class FactureDTO {
     @NotNull(message = "Le montant total ne doit pas être nul")
     private Double montantTotal;
-    @NotNull(message = "Le nom du patient ne doit pas être nul")
-    private String patientUsername;
+    @NotNull(message = "L'id du rendez-vous ne doit pas être nul")
+    private Long rendezVousId;
 
     // Getters et Setters
 }

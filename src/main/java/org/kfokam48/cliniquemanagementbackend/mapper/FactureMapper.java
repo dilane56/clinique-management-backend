@@ -3,29 +3,35 @@ package org.kfokam48.cliniquemanagementbackend.mapper;
 
 import org.kfokam48.cliniquemanagementbackend.dto.FactureDTO;
 import org.kfokam48.cliniquemanagementbackend.dto.FactureResponseDto;
+import org.kfokam48.cliniquemanagementbackend.dto.FactureUpdateDTO;
+import org.kfokam48.cliniquemanagementbackend.exception.RessourceNotFoundException;
 import org.kfokam48.cliniquemanagementbackend.model.Facture;
 import org.kfokam48.cliniquemanagementbackend.model.Patient;
 import org.kfokam48.cliniquemanagementbackend.model.RendezVous;
 import org.kfokam48.cliniquemanagementbackend.repository.PatientRepository;
 
+import org.kfokam48.cliniquemanagementbackend.repository.RendezVousRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
 public class FactureMapper {
 
-    private final PatientRepository patientRepository;
+   private final RendezVousRepository rendezVousRepository;
 
-    public FactureMapper( PatientRepository patientRepository) {
-        this.patientRepository = patientRepository;
+    public FactureMapper(RendezVousRepository rendezVousRepository) {
+        this.rendezVousRepository = rendezVousRepository;
     }
 
     public Facture factureDtoToFacture (FactureDTO factureDTO){
         Facture facture = new Facture();
+        RendezVous rendezVous = rendezVousRepository.findById(factureDTO.getRendezVousId())
+                .orElseThrow(() -> new RessourceNotFoundException("Rendez-vous not found"));
         facture.setMontantTotal(factureDTO.getMontantTotal());
-        facture.setPatient(patientRepository.findByUsername(factureDTO.getPatientUsername())
-                .orElseThrow(() -> new RuntimeException("Patient not found")));
+        facture.setRendezVous(rendezVous);
+        facture.setDescription(rendezVous.getMotif());
         return facture;
     }
 
@@ -34,21 +40,28 @@ public class FactureMapper {
         factureResponseDto.setId(facture.getId());
         factureResponseDto.setMontantTotal(facture.getMontantTotal());
         factureResponseDto.setDateEmission(facture.getDateEmission());
-        factureResponseDto.setPatientUsername(facture.getPatient().getUsername());
-        factureResponseDto.setRendezvousMotif(facture.getDescription());
+        factureResponseDto.setPatientUsername(facture.getRendezVous().getPatient().getUsername());
+        factureResponseDto.setRendezvousMotif(facture.getRendezVous().getMotif());
         factureResponseDto.setDatePayement(facture.getDatePayement());
         factureResponseDto.setMontantVerser(facture.getMontantPayement());
         factureResponseDto.setMontantRestant(facture.getMontantRestant());
         factureResponseDto.setStatutPayement(facture.getStatutPayement());
         factureResponseDto.setModePayement(facture.getModePayement());
+        factureResponseDto.setMedecinUsername(facture.getRendezVous().getMedecin().getUsername());
         return factureResponseDto;
    }
-    public Facture factureResponseDtoToFacture (FactureResponseDto factureResponseDto){
+    public Facture factureUpdateDTOToFacture(FactureUpdateDTO factureUpdateDTO){
         Facture facture = new Facture();
-        facture.setId(factureResponseDto.getId());
-        facture.setMontantTotal(factureResponseDto.getMontantTotal());
-        facture.setDateEmission(factureResponseDto.getDateEmission());
-        facture.setDescription(factureResponseDto.getRendezvousMotif());
+        facture.setMontantTotal(factureUpdateDTO.getMontantTotal());
+        facture.setDatePayement(factureUpdateDTO.getDatePayement());
+        facture.setMontantPayement(factureUpdateDTO.getMontantPayement());
+        facture.setStatutPayement(factureUpdateDTO.getStatutPayement());
+        facture.setModePayement(factureUpdateDTO.getModePayement());
+        facture.setDescription(factureUpdateDTO.getDescription());
+        facture.setMontantRestant(factureUpdateDTO.getMontantRestant());
+        facture.setDateEmission(LocalDateTime.now());
+        facture.setRendezVous(rendezVousRepository.findById(factureUpdateDTO.getRendezVousId())
+                .orElseThrow(() -> new RessourceNotFoundException("Rendez-vous not found")));
         return facture;
     }
 

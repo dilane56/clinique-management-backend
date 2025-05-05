@@ -4,10 +4,12 @@ package org.kfokam48.cliniquemanagementbackend.service.impl;
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.FactureDTO;
 import org.kfokam48.cliniquemanagementbackend.dto.FactureResponseDto;
+import org.kfokam48.cliniquemanagementbackend.dto.FactureUpdateDTO;
 import org.kfokam48.cliniquemanagementbackend.exception.RessourceNotFoundException;
 import org.kfokam48.cliniquemanagementbackend.mapper.FactureMapper;
 import org.kfokam48.cliniquemanagementbackend.model.Facture;
 import org.kfokam48.cliniquemanagementbackend.model.Patient;
+import org.kfokam48.cliniquemanagementbackend.model.RendezVous;
 import org.kfokam48.cliniquemanagementbackend.repository.FactureRepository;
 import org.kfokam48.cliniquemanagementbackend.repository.PatientRepository;
 import org.kfokam48.cliniquemanagementbackend.service.FactureService;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -33,16 +36,14 @@ public class FactureServiceImpl implements FactureService {
 
     @Override
     public FactureResponseDto save(@Valid FactureDTO factureDTO) {
-        System.out.println("Ajout d'un facture");
         Facture facture = factureMapper.factureDtoToFacture(factureDTO);
-        facture.setDateEmission(LocalDate.now());
+        facture.setDateEmission(LocalDateTime.now());
         factureRepository.save(facture);
         return factureMapper.factureToFactureResponseDto(facture);
     }
 
     @Override
     public FactureResponseDto findById(Long id) {
-        System.out.println("recherche d'une facture");
         return factureMapper.factureToFactureResponseDto(factureRepository.findById(id).orElseThrow(() -> new RessourceNotFoundException("Facture not found")));
     }
 
@@ -52,13 +53,8 @@ public class FactureServiceImpl implements FactureService {
     }
 
     @Override
-    public FactureResponseDto update(Long id,@Valid FactureDTO factureDTO) {
+    public FactureResponseDto update(Long id,@Valid FactureUpdateDTO factureUpdateDTO) {
         Facture facture = factureRepository.findById(id).orElseThrow(() -> new RuntimeException("Facture not found"));
-        facture.setMontantTotal(factureDTO.getMontantTotal());
-
-        Patient patient = patientRepository.findByUsername(factureDTO.getPatientUsername()).orElseThrow(() -> new RuntimeException("Patient not found"));
-        facture.setPatient(patient);
-
         return factureMapper.factureToFactureResponseDto(facture);
     }
 
