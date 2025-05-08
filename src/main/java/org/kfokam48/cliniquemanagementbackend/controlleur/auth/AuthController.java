@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -22,13 +25,21 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticateUser(@Valid @RequestBody LoginRequest authRequest) {
+    public ResponseEntity<Map<String, String>> authenticateUser(@Valid @RequestBody LoginRequest authRequest) {
         try {
             String token = authService.authenticateUser(authRequest);
-            return ResponseEntity.ok(token);
+            String role = String.valueOf(authService.getUserRole(authRequest));
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put ("role", role);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+
+            return ResponseEntity.status(401).body(error);
         }
+
+
     }
 }
-

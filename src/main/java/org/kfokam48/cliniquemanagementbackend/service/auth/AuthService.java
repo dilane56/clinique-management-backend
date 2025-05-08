@@ -4,7 +4,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.validation.Valid;
 import org.kfokam48.cliniquemanagementbackend.dto.auth.LoginRequest;
+import org.kfokam48.cliniquemanagementbackend.enums.Roles;
 import org.kfokam48.cliniquemanagementbackend.exception.AuthenticationFailedException;
+import org.kfokam48.cliniquemanagementbackend.exception.RessourceNotFoundException;
+import org.kfokam48.cliniquemanagementbackend.model.Utilisateur;
+import org.kfokam48.cliniquemanagementbackend.repository.UtilisateurRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,11 +27,13 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final UtilisateurRepository utilisateurRepository ;
     public static final SecretKey secretKey = Keys.hmacShaKeyFor(generateSecureKey(256).getEncoded());
 
-    public AuthService(AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
+    public AuthService(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, UtilisateurRepository utilisateurRepository) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
+        this.utilisateurRepository = utilisateurRepository;
     }
 
     public String authenticateUser(@Valid LoginRequest authRequest) {
@@ -42,7 +48,7 @@ public class AuthService {
             System.out.println("Authentification réussie pour l'utilisateur : " + userDetails.getUsername());
 //            // Génération du token JWT
             return Jwts.builder()
-                    .issuer("gestiondestock")
+                    .issuer("CLINIQUE-MANAGEMENT")
                     .subject(userDetails.getUsername())
                     .issuedAt(new Date())
                     .expiration(new Date(System.currentTimeMillis() + 86400000)) // Expire dans 1 jour
@@ -56,7 +62,10 @@ public class AuthService {
         }
 
     }
-
+    public Roles getUserRole(LoginRequest loginRequest){
+        Utilisateur user = utilisateurRepository.findByEmail(loginRequest.getEmail()).orElseThrow(()-> new RessourceNotFoundException("user not found"));
+        return user.getRole();
+    }
 
     // Generation de la clé de sécurité
     public static SecretKey generateSecureKey(int keySize) {

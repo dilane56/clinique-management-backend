@@ -2,7 +2,7 @@ package org.kfokam48.cliniquemanagementbackend.service.pdf;
 
 
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfAppearance;
+
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -20,6 +20,11 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 public class PdfService {
+    private final Font title_Font = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 30, BaseColor.BLUE);
+    private final Font subTitle_Font = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20, BaseColor.BLUE);
+    private final Font text_Font = FontFactory.getFont(FontFactory.HELVETICA, 12, BaseColor.BLACK);
+    private final Font text_Font2 = FontFactory.getFont(FontFactory.HELVETICA, 10, BaseColor.BLACK);
+
 
     public ByteArrayOutputStream generateFacturePdf(Facture facture) throws DocumentException {
 
@@ -31,7 +36,7 @@ public class PdfService {
         // Titre du document
         Paragraph title = new Paragraph("Facture Médicale");
         title.setAlignment(Element.ALIGN_CENTER);
-        title.setFont(FontFactory.getFont(FontFactory.HELVETICA_BOLD, 35, BaseColor.BLUE));
+        title.setFont(title_Font);
         title.setSpacingAfter(10);
       //  title.setSpacingBefore(10);
         document.add(title);
